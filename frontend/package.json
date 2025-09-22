@@ -1,0 +1,20 @@
+{
+  "name": "shophub-frontend",
+  "version": "1.0.0",
+  "description": "ShopHub E-commerce Frontend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "e-commerce",
+    "frontend",
+    "shopping"
+  ],
+  "author": "ShopHub Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

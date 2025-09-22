@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - ShopHub</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🛍️</div>
+        <span>ShopHub</span>
+      </a>
+      <div class="nav-links" id="nav-auth">
+        <a href="cart.html" class="btn btn-secondary">🛒 Cart</a>
+        <a href="login.html" class="btn btn-secondary" id="login-link">Login</a>
+        <a href="register.html" class="btn btn-secondary" id="register-link">Register</a>
+        <span id="user-info" style="display:none; color: #fff; font-weight: 500;"></span>
+        <button class="btn" id="logout-btn" style="display:none;">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="main-content fade-in">
+      <div class="text-center mb-2">
+        <h1 style="font-size: 2.5rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem;">
+          Your Shopping Cart
+        </h1>
+        <p style="font-size: 1.1rem; color: #718096; margin-bottom: 2rem;">
+          Review your items and proceed to checkout
+        </p>
+      </div>
+
+      <div id="cart-items"></div>
+      
+      <div id="cart-total" style="text-align: right; font-size: 1.5rem; font-weight: 700; color: #667eea; margin: 2rem 0;"></div>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button id="checkout-btn" class="btn" style="background: #28a745; display: none;">
+          💳 Proceed to Checkout
+        </button>
+        <a href="index.html" class="btn btn-secondary">
+          🛍️ Continue Shopping
+        </a>
+      </div>
+
+      <form id="checkout-form" style="display:none; margin-top: 2rem;">
+        <h3 style="color: #1a202c; margin-bottom: 1.5rem;">Checkout Information</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" required placeholder="Enter your full name">
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" required placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" required placeholder="Enter your phone number">
+          </div>
+          <div class="form-group">
+            <label for="address">Shipping Address</label>
+            <textarea id="address" required placeholder="Enter your complete shipping address" rows="3"></textarea>
+          </div>
+        </div>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+          <button type="submit" class="btn" style="background: #28a745;">
+            ✅ Place Order
+          </button>
+          <button type="button" class="btn btn-secondary" id="cancel-checkout">
+            ❌ Cancel
+          </button>
+        </div>
+      </form>
+
+      <div id="order-confirmation" class="alert alert-success" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script>
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type}`;
+      notification.textContent = message;
+      notification.style.position = 'fixed';
+      notification.style.top = '20px';
+      notification.style.right = '20px';
+      notification.style.zIndex = '10000';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    function loadCart() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cartItemsDiv = document.getElementById('cart-items');
+      const checkoutBtn = document.getElementById('checkout-btn');
+      const cartTotal = document.getElementById('cart-total');
+      
+      if (cart.length === 0) {
+        cartItemsDiv.innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+            <h3 style="color: #718096; margin-bottom: 1rem;">Your cart is empty</h3>
+            <p style="color: #a0aec0; margin-bottom: 2rem;">Start shopping to add items to your cart</p>
+            <a href="index.html" class="btn">
+              🛍️ Start Shopping
+            </a>
+          </div>
+        `;
+        cartTotal.textContent = '';
+        checkoutBtn.style.display = 'none';
+        document.getElementById('checkout-form').style.display = 'none';
+        return;
+      }
+      
+      let total = 0;
+      cartItemsDiv.innerHTML = '';
+      
+      cart.forEach((item, idx) => {
+        total += item.price * item.quantity;
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item fade-in';
+        cartItem.innerHTML = `
+          <div class="cart-item-info">
+            <h4 style="margin: 0 0 0.5rem 0; color: #1a202c;">${item.name}</h4>
+            <p style="margin: 0; color: #718096;">$${item.price.toFixed(2)} each</p>
+          </div>
+          <div class="quantity-controls">
+            <input type="number" min="1" value="${item.quantity}" data-idx="${idx}" class="quantity-input">
+            <button class="btn" style="background: #dc3545; padding: 0.5rem 1rem;" data-idx="${idx}">
+              🗑️ Remove
+            </button>
+          </div>
+          <div class="cart-item-price">
+            $${(item.price * item.quantity).toFixed(2)}
+          </div>
+        `;
+        cartItemsDiv.appendChild(cartItem);
+      });
+      
+      cartTotal.textContent = `Total: $${total.toFixed(2)}`;
+      checkoutBtn.style.display = 'inline-block';
+      attachCartListeners();
+    }
+    
+    function attachCartListeners() {
+      document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+          const idx = parseInt(this.getAttribute('data-idx'));
+          let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          let val = parseInt(this.value);
+          if (val < 1) val = 1;
+          cart[idx].quantity = val;
+          localStorage.setItem('cart', JSON.stringify(cart));
+          loadCart();
+          showNotification('Cart updated!', 'success');
+        });
+      });
+      
+      document.querySelectorAll('[data-idx]').forEach(btn => {
+        if (btn.textContent.includes('Remove')) {
+          btn.addEventListener('click', function() {
+            const idx = parseInt(this.getAttribute('data-idx'));
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const removedItem = cart[idx];
+            cart.splice(idx, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+            showNotification(`${removedItem.name} removed from cart`, 'success');
+          });
+        }
+      });
+    }
+    
+    function updateNavAuth() {
+      const token = localStorage.getItem('token');
+      const loginLink = document.getElementById('login-link');
+      const registerLink = document.getElementById('register-link');
+      const userInfo = document.getElementById('user-info');
+      const logoutBtn = document.getElementById('logout-btn');
+      
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          userInfo.textContent = 'Hello, ' + payload.username;
+          userInfo.style.display = '';
+          logoutBtn.style.display = '';
+          loginLink.style.display = 'none';
+          registerLink.style.display = 'none';
+        } catch {
+          userInfo.textContent = '';
+          userInfo.style.display = 'none';
+          logoutBtn.style.display = 'none';
+          loginLink.style.display = '';
+          registerLink.style.display = '';
+        }
+      } else {
+        userInfo.textContent = '';
+        userInfo.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        loginLink.style.display = '';
+        registerLink.style.display = '';
+      }
+    }
+    
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      localStorage.removeItem('token');
+      updateNavAuth();
+    });
+    
+    document.getElementById('checkout-btn').addEventListener('click', function() {
+      document.getElementById('checkout-form').style.display = 'block';
+      document.getElementById('checkout-btn').style.display = 'none';
+    });
+    
+    document.getElementById('cancel-checkout').addEventListener('click', function() {
+      document.getElementById('checkout-form').style.display = 'none';
+      document.getElementById('checkout-btn').style.display = 'inline-block';
+    });
+    
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const address = document.getElementById('address').value;
+      
+      // Simulate order processing
+      showNotification('Processing your order...', 'success');
+      
+      setTimeout(() => {
+        localStorage.removeItem('cart');
+        document.getElementById('cart-items').innerHTML = '';
+        document.getElementById('cart-total').textContent = '';
+        document.getElementById('checkout-form').style.display = 'none';
+        document.getElementById('order-confirmation').style.display = 'block';
+        document.getElementById('order-confirmation').innerHTML = `
+          <h3>🎉 Order Placed Successfully!</h3>
+          <p>Thank you for your order, <strong>${name}</strong>!</p>
+          <p>Order confirmation has been sent to <strong>${email}</strong></p>
+          <p>Estimated delivery: 3-5 business days</p>
+        `;
+        showNotification('Order placed successfully!', 'success');
+      }, 2000);
+    });
+    
+    updateNavAuth();
+    loadCart();
+  </script>
+</body>
+</html> 
