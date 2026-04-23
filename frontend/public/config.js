@@ -3,7 +3,7 @@ const config = {
   // API base URL - will be automatically detected
   apiUrl: window.location.hostname === 'localhost' 
     ? 'http://localhost:5000' 
-    : 'https://your-backend-app.onrender.com', // Replace with your actual backend URL
+    : 'https://shophub2-backend.onrender.com', // Replace with your actual backend URL
   
   // Environment detection
   isDevelopment: window.location.hostname === 'localhost',
