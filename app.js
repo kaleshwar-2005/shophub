@@ -5,8 +5,8 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 
 const app = express();
-const PORT = 5000;
-const SECRET = 'your_jwt_secret';
+const PORT = process.env.PORT || 5000;
+const SECRET = process.env.JWT_SECRET;
 const USERS_FILE = './users.json';
 
 // Load users from file if exists
