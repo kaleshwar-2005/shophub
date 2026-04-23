@@ -280,7 +280,12 @@ const comparePassword = async (password, hashedPassword) => {
   return await bcrypt.compare(password, hashedPassword);
 };
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://shophub-frontend-ts89.onrender.com', 'http://localhost:8000'] 
+    : 'http://localhost:8000',
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
