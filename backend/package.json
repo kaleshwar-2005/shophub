@@ -1,0 +1,29 @@
+{
+  "name": "shophub-backend",
+  "version": "1.0.0",
+  "description": "ShopHub E-commerce Backend API with In-Memory Storage",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "e-commerce",
+    "api",
+    "nodejs",
+    "express"
+  ],
+  "author": "ShopHub Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.0.2"
+  }
+}
